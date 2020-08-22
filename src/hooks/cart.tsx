@@ -54,38 +54,41 @@ const CartProvider: React.FC = ({ children }) => {
 
         setProducts(newProduct);
       } else {
-        const { id, title, image_url, price } = product;
-        const newProduct = {
-          id,
-          title,
-          image_url,
-          price,
-          quantity: 1,
-        };
-        setProducts([...products, newProduct]);
+        setProducts([...products, { ...product, quantity: 1 }]);
       }
 
-      AsyncStorage.setItem('@GoMarket:product', JSON.stringify(product));
+      await AsyncStorage.setItem('@GoMarket:product', JSON.stringify(product));
     },
     [products],
   );
 
   const increment = useCallback(
     async id => {
-      const index = products.findIndex(p => p.id === id);
-
-      const incrementQuantity = {
-        ...products[index],
-        quantity: products[index].quantity + 1,
-      };
-      products[index] = incrementQuantity;
-
-      setProducts([...products]);
-
-      AsyncStorage.setItem(
-        '@GoMarket:product',
-        JSON.stringify(incrementQuantity),
+      const newProducts = products.map(product =>
+        product.id === id
+          ? { ...product, quantity: product.quantity + 1 }
+          : product,
       );
+
+      setProducts(newProducts);
+      await AsyncStorage.setItem(
+        '@GoMarket:product',
+        JSON.stringify(newProducts),
+      );
+      // const index = products.findIndex(p => p.id === id);
+
+      // const incrementQuantity = {
+      //   ...products[index],
+      //   quantity: products[index].quantity + 1,
+      // };
+      // products[index] = incrementQuantity;
+
+      // setProducts([...products]);
+
+      // AsyncStorage.setItem(
+      //   '@GoMarket:product',
+      //   JSON.stringify(incrementQuantity),
+      // );
     },
     [products],
   );
@@ -105,7 +108,7 @@ const CartProvider: React.FC = ({ children }) => {
 
         setProducts([...products]);
 
-        AsyncStorage.setItem(
+        await AsyncStorage.setItem(
           '@GoMarket:product',
           JSON.stringify(incrementQuantity),
         );
